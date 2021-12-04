@@ -1,4 +1,4 @@
-# PicoRetroGamingSystem
+# Raspberry Pi Pico RetroGaming System
 
 Code and games for the Raspberry Pi Pico RetroGaming System
 
