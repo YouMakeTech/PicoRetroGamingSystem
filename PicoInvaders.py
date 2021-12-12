@@ -434,7 +434,7 @@ while True:
             ufo.state = Ufo.DISAPPEARING
         elif ufo.state == Ufo.DISAPPEARING:
              # draw explosion slightly shifted (sprite 8)
-            game.sprite(8, int(alien.x) + 2, int(alien.y) + 2)
+            game.sprite(8, int(ufo.x) + 2, int(ufo.y) + 2)
             ufo.state = Ufo.DEAD
 
     # print the score
