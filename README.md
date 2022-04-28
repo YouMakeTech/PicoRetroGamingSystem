@@ -1,6 +1,8 @@
 # Raspberry Pi Pico RetroGaming System
 
 Code and games for the Raspberry Pi Pico RetroGaming System
+* [YouTube video](https://youtu.be/VYeIR5n5Few)
+* [Assembly instructions](https://www.youmaketech.com/raspberry-pi-pico-retrogaming-system/)
 
 Files
 =====
