@@ -122,16 +122,16 @@ UFO = bytearray([0b00000111,0b11100000,
 
 game = PicoGame()
 
-game.addSprite(ALIEN1A, ALIEN1A_W, ALIEN1A_H) # Sprite 0
-game.addSprite(ALIEN2A, ALIEN2A_W, ALIEN2A_H) # Sprite 1
-game.addSprite(ALIEN3A, ALIEN3A_W, ALIEN3A_H) # Sprite 2
-game.addSprite(ALIEN1B, ALIEN1B_W, ALIEN1B_H) # Sprite 3
-game.addSprite(ALIEN2B, ALIEN2B_W, ALIEN2B_H) # Sprite 4
-game.addSprite(ALIEN3B, ALIEN3B_W, ALIEN3B_H) # Sprite 5
-game.addSprite(PLAYER, PLAYER_W, PLAYER_H)    # Sprite 6
-game.addSprite(LASER, LASER_W, LASER_H)       # Sprite 7
-game.addSprite(EXPLOSION, EXPLOSION_W, LASER_H)   # Sprite 8
-game.addSprite(UFO, UFO_W, UFO_H)             # Sprite 9
+game.add_sprite(ALIEN1A, ALIEN1A_W, ALIEN1A_H) # Sprite 0
+game.add_sprite(ALIEN2A, ALIEN2A_W, ALIEN2A_H) # Sprite 1
+game.add_sprite(ALIEN3A, ALIEN3A_W, ALIEN3A_H) # Sprite 2
+game.add_sprite(ALIEN1B, ALIEN1B_W, ALIEN1B_H) # Sprite 3
+game.add_sprite(ALIEN2B, ALIEN2B_W, ALIEN2B_H) # Sprite 4
+game.add_sprite(ALIEN3B, ALIEN3B_W, ALIEN3B_H) # Sprite 5
+game.add_sprite(PLAYER, PLAYER_W, PLAYER_H)    # Sprite 6
+game.add_sprite(LASER, LASER_W, LASER_H)       # Sprite 7
+game.add_sprite(EXPLOSION, EXPLOSION_W, LASER_H)   # Sprite 8
+game.add_sprite(UFO, UFO_W, UFO_H)             # Sprite 9
 
 # Game settings
 SCREEN_WIDTH = game.SCREEN_WIDTH
@@ -185,7 +185,7 @@ class Alien:
         self.sprite = sprite # sprite number
         self.state = Alien.ALIVE
     
-    def switchSprite(self):
+    def switch_sprite(self):
         # switch between sprites to animate aliens
         if self.sprite<3:
             self.sprite+=3
@@ -221,7 +221,7 @@ class Laser:
             
     def draw(self, game):
         if self.active:
-            game.fillRect(int(self.x), int(self.y), self.width, self.height, 1)
+            game.fill_rect(int(self.x), int(self.y), self.width, self.height, 1)
     
 class Ufo:
     # UFO states (constants)
@@ -242,7 +242,7 @@ class Ufo:
         if self.x > SCREEN_WIDTH:
             self.state = Ufo.DEAD
 
-def initAliens():
+def init_aliens():
     # initialize aliens
     aliens = []
     sprite = 0
@@ -255,39 +255,39 @@ def initAliens():
     return aliens
    
 # initialize the game
-aliens = initAliens()
+aliens = init_aliens()
 laser = Laser(LASER_WIDTH, LASER_HEIGHT)
 ufo = Ufo()
-aliensVx = ALIENS_VX
-playerX = SCREEN_WIDTH/2 - PLAYER_W/2
-loopCounter = 0
-soundFreq = 180 # Sound frequency in Hz
+aliens_vx = ALIENS_VX
+player_x = SCREEN_WIDTH/2 - PLAYER_W/2
+loop_counter = 0
+sound_freq = 180 # Sound frequency in Hz
 score = 0
 
-# game loop     
+# game loop
 while True:
     # move player
-    if game.buttonLeft():
+    if game.button_left():
         # left button pressed
         # => move player ship to the left
-        playerX -= PLAYER_SPEED
+        player_x -= PLAYER_SPEED
         # do not allow player to leave the screen!
-        if playerX < 0:
-            playerX = 0
-    elif game.buttonRight():
+        if player_x < 0:
+            player_x = 0
+    elif game.button_right():
         # right button pressed
         # => move player ship to the right
-        playerX += PLAYER_SPEED
+        player_x += PLAYER_SPEED
         # do not allow player to leave the screen!
-        if playerX + PLAYER_W > SCREEN_WIDTH:
-            playerX = SCREEN_WIDTH - PLAYER_W
+        if player_x + PLAYER_W > SCREEN_WIDTH:
+            player_x = SCREEN_WIDTH - PLAYER_W
 
-    if game.button1() or game.button2():
-        # button 1 or 2 pressed
+    if game.button_A() or game.button_B():
+        # button A or B pressed
         # fire a laser
-        activePrev=laser.active
-        laser.fire(playerX, PLAYER_Y)
-        if not activePrev and laser.active:
+        laser_active_prev=laser.active
+        laser.fire(player_x, PLAYER_Y)
+        if not laser_active_prev and laser.active:
             # make a sound when the laser is released
             game.sound(1000)
         
@@ -306,24 +306,24 @@ while True:
         ufo.move(UFO_SPEED)
 
         # play the UFO sound (alternate between 2 frequencies)
-        if soundFreq == 1100:
-            soundFreq = 2000
+        if sound_freq == 1100:
+            sound_freq = 2000
         else:
-            soundFreq = 1100
-        game.sound(soundFreq)
+            sound_freq = 1100
+        game.sound(sound_freq)
     
     # move aliens left/right and bottom when they hit
     # the left or right edge of the screen
     collision = False # collision with the edge of the screen?
     for alien in aliens:
         if alien.state == Alien.ALIVE:
-            width = game.spriteWidth(alien.sprite)
-            height = game.spriteHeight(alien.sprite)
-            if aliensVx > 0 and alien.x + aliensVx + width > SCREEN_WIDTH:
+            width = game.sprite_width(alien.sprite)
+            height = game.sprite_height(alien.sprite)
+            if aliens_vx > 0 and alien.x + aliens_vx + width > SCREEN_WIDTH:
                 # this allien hits the right edge of teh screen
                 collision = True
                 break
-            elif aliensVx<0 and alien.x + aliensVx < 0:
+            elif aliens_vx<0 and alien.x + aliens_vx < 0:
                 # this allien hits the left edge of the screen
                 collision = True            
                 break
@@ -331,32 +331,32 @@ while True:
         # one alien hit the left or right edge of the screen
         # reverse x direction for all
         collision = True
-        aliensVx = - aliensVx
-        aliensVy = ALIENS_VY
+        aliens_vx = - aliens_vx
+        aliens_vy = ALIENS_VY
     else:
-        aliensVy = 0.0
+        aliens_vy = 0.0
     
-    gameOver = False
+    game_over = False
     for alien in aliens: 
-        alien.x += aliensVx
-        alien.y += aliensVy
+        alien.x += aliens_vx
+        alien.y += aliens_vy
         if alien.state == Alien.ALIVE and alien.y>SCREEN_HEIGHT:
             # Aliens reached the bottom of the screen
             # => Game Over
-            gameOver = True
+            game_over = True
     
     # detect collisions between laser and aliens
     # + player and aliens
     for alien in aliens:
         if alien.state == Alien.ALIVE:
-            width = game.spriteWidth(alien.sprite)
-            height = game.spriteHeight(alien.sprite)
+            width = game.sprite_width(alien.sprite)
+            height = game.sprite_height(alien.sprite)
                           
-            if not gameOver:
+            if not game_over:
                 # check collision between player and alien
-                if intersect(playerX, PLAYER_Y, PLAYER_W, PLAYER_H, alien.x, alien.y, width, height):
+                if intersect(player_x, PLAYER_Y, PLAYER_W, PLAYER_H, alien.x, alien.y, width, height):
                     # the player was hit by an alien
-                    gameOver = True
+                    game_over = True
             
             if laser.active and intersect(laser.x, laser.y, laser.width, laser.height, alien.x, alien.y, width, height):
                 # laser hit an alien
@@ -372,25 +372,25 @@ while True:
             score += 100
     
     # actions that happen every 16 frames
-    loopCounter += 1
-    if (loopCounter%16) == 0:
-        loopCounter = 0 # reset loopCounter
+    loop_counter += 1
+    if (loop_counter%16) == 0:
+        loop_counter = 0 # reset loop_counter
         
         # alternate between 2 sprites to animate aliens
         for alien in aliens:
-            alien.switchSprite()
+            alien.switch_sprite()
             
         if ufo.state == Ufo.DEAD:
             # play Alien sounds
-            if soundFreq == 180:
-                soundFreq = 160
-            elif soundFreq == 160:
-                soundFreq = 140
-            elif soundFreq == 140:
-                soundFreq = 120
+            if sound_freq == 180:
+                sound_freq = 160
+            elif sound_freq == 160:
+                sound_freq = 140
+            elif sound_freq == 140:
+                sound_freq = 120
             else:
-                soundFreq = 180
-            game.sound(soundFreq)
+                sound_freq = 180
+            game.sound(sound_freq)
 
     # refresh the display
     
@@ -398,7 +398,7 @@ while True:
     game.fill(0)
     
     # print the score
-    game.topRightCornerText(str(score))
+    game.top_right_corner_text(str(score))
     
     # draw the aliens
     for alien in aliens:
@@ -417,7 +417,7 @@ while True:
             alien.state = Alien.DEAD
     
     # draw the player
-    game.sprite(6, int(playerX), int(PLAYER_Y))
+    game.sprite(6, int(player_x), int(PLAYER_Y))
     
     # draw the laser
     laser.draw(game)
@@ -438,7 +438,7 @@ while True:
             ufo.state = Ufo.DEAD
 
     # print the score
-    game.topRightCornerText(str(score))
+    game.top_right_corner_text(str(score))
     
     # show the screen
     game.show()
@@ -447,19 +447,19 @@ while True:
     game.sound(0)
     
     # Reset aliens when they are all dead
-    atLeastOneAlive = False
+    at_least_one_alien_alive = False
     for alien in aliens:
         if alien.state == Alien.ALIVE:
-            atLeastOneAlive = True
+            at_least_one_alien_alive = True
             break
     
-    if not atLeastOneAlive:
+    if not at_least_one_alien_alive:
         # No aliens remaining => send a new wave 
-        aliens = initAliens()
-        aliensVx = aliensVx * 1.2 # increases aliens velocity by +20%
+        aliens = init_aliens()
+        aliens_vx = aliens_vx * 1.2 # increases aliens velocity by +20%
 
     
-    if gameOver:
+    if game_over:
         # play an ugly sound
         game.sound(200)
         time.sleep(0.5)
@@ -467,20 +467,20 @@ while True:
         
         # display Game Over screen
         game.fill(0)
-        game.centerText("GAME OVER")
-        game.topRightCornerText(str(score))
+        game.center_text("GAME OVER")
+        game.top_right_corner_text(str(score))
         game.show()
         
         # wait for a button
-        while not game.anyButton():
+        while not game.any_button():
             time.sleep(0.001)
         
         # re-initialize game
-        aliens = initAliens()
+        aliens = init_aliens()
         laser = Laser(LASER_WIDTH, LASER_HEIGHT)
-        aliensVx = ALIENS_VX
-        playerX = SCREEN_WIDTH/2 - PLAYER_W/2
-        loopCounter = 0
-        soundFreq = 180
+        aliens_vx = ALIENS_VX
+        player_x = SCREEN_WIDTH/2 - PLAYER_W/2
+        loop_counter = 0
+        sound_freq = 180
         score = 0
    
