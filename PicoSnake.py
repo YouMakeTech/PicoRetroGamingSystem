@@ -1,40 +1,31 @@
 # Original source code from https://github.com/Twan37/PicoSnake
 
-from machine import Pin, I2C, Timer
+from machine import Pin, PWM, I2C, Timer
 from ssd1306 import SSD1306_I2C
-import utime
-import urandom
+import time
+import random
 
-# Buttons
-up = machine.Pin(2, machine.Pin.IN, machine.Pin.PULL_UP)
-down = machine.Pin(3, machine.Pin.IN, machine.Pin.PULL_UP)
-left = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_UP)
-right = machine.Pin(5, machine.Pin.IN, machine.Pin.PULL_UP)
-
-speaker = machine.PWM(Pin(18))
-
-# OLED Screen
-SDA = machine.Pin(14)
-SCL = machine.Pin(15)
-i2c = machine.I2C(1, sda=SDA, scl=SCL, freq=400000)
-oled = SSD1306_I2C(128, 64, i2c)
-oled.fill(0)
-
-SCREEN_HEIGHT = 64
+# global variables
 SCREEN_WIDTH = 128
+SCREEN_HEIGHT = 64
 
 SEGMENT_WIDTH = 8
 SEGMENT_PIXELS = int(SCREEN_HEIGHT/SEGMENT_WIDTH)
-
 SEGMENTS_HIGH = int(SCREEN_HEIGHT/SEGMENT_WIDTH)
 SEGMENTS_WIDE = int(SCREEN_WIDTH/SEGMENT_WIDTH)
 VALID_RANGE = [[int(i /SEGMENTS_HIGH), i % SEGMENTS_HIGH] for i in range(SEGMENTS_WIDE * SEGMENTS_HIGH -1)]
 
-# Game code
+speaker = PWM(Pin(18))
 game_timer = Timer()
 player = None
 food = None
 
+# OLED Screen
+i2c = I2C(1, sda=Pin(14), scl=Pin(15), freq=400000)
+oled = SSD1306_I2C(SCREEN_WIDTH, SCREEN_HEIGHT, i2c)
+oled.fill(0)
+
+# Game code
 class Snake:
     up = 0
     down = 1
@@ -45,14 +36,14 @@ class Snake:
         self.segments = [[x, y]]
         self.x = x
         self.y = y
-        self.dir = urandom.randint(0,3)
+        self.dir = random.randint(0,3)
         self.state = True
         
     def reset(self, x=int(SEGMENTS_WIDE/2), y=int(SEGMENTS_HIGH/2) + 1):
         self.segments = [[x, y]]
         self.x = x
         self.y = y
-        self.dir = urandom.randint(0,3)
+        self.dir = random.randint(0,3)
         self.state = True
         
     def move(self):
@@ -79,7 +70,7 @@ class Snake:
                 # play an ugly sound
                 speaker.freq(200)
                 speaker.duty_u16(2000)
-                utime.sleep(0.5)
+                time.sleep(0.5)
                 speaker.duty_u16(0)
             self.state = False
         
@@ -96,7 +87,7 @@ class Snake:
         # Make a sound
         speaker.freq(1000)
         speaker.duty_u16(2000)
-        utime.sleep(0.100)
+        time.sleep(0.100)
         speaker.duty_u16(0)
         
     def change_dir(self, dir):
@@ -123,17 +114,24 @@ class Snake:
     def draw(self):
         oled.rect(self.segments[-1][0] * SEGMENT_PIXELS, self.segments[-1][1] * SEGMENT_PIXELS, SEGMENT_PIXELS, SEGMENT_PIXELS, 1)
 
-
-def main():
+def pico_snake_main():
     global player
     global food
     
     player = Snake()
-    food = urandom.choice([coord for coord in VALID_RANGE if coord not in player.segments])
+    food = random.choice([coord for coord in VALID_RANGE if coord not in player.segments])
     oled.fill_rect(food[0] * SEGMENT_PIXELS , food[1] * SEGMENT_PIXELS, SEGMENT_PIXELS, SEGMENT_PIXELS, 1)
     
     # Playing around with this cool timer.
     game_timer.init(freq=5, mode=Timer.PERIODIC, callback=update_game)
+    
+    # Buttons
+    up = Pin(2, Pin.IN, Pin.PULL_UP)
+    down = Pin(3, Pin.IN, Pin.PULL_UP)
+    left = Pin(4, Pin.IN, Pin.PULL_UP)
+    right = Pin(5, Pin.IN, Pin.PULL_UP)
+    button1 = Pin(6, Pin.IN, Pin.PULL_UP)
+    button2 = Pin(7, Pin.IN, Pin.PULL_UP)
 
     while True:
         if player.state == True:
@@ -151,14 +149,23 @@ def main():
                     player.change_dir(Snake.down)
         
         else:
-            # If the snake is dead
-            if up.value() == 0:
-                # Revive our snake friend
-                oled.fill(0)
-                player.reset()
-                food = urandom.choice([coord for coord in VALID_RANGE if coord not in player.segments])
-                oled.fill_rect(food[0] * SEGMENT_PIXELS , food[1] * SEGMENT_PIXELS, SEGMENT_PIXELS, SEGMENT_PIXELS, 1)
-                
+            # The snake is dead
+            
+            # disable the timer
+            game_timer.deinit()
+            
+            # display Game Over
+            oled.fill(0)
+            oled.text("Game Over!" , int(SCREEN_WIDTH/2) - int(len("Game Over!")/2 * 8), int(SCREEN_HEIGHT/2) - 8)
+            oled.text("Snake length:" + str(len(player.segments)) , int(SCREEN_WIDTH/2) - int(len("Snake length:" + str(len(player.segments))) /2 * 8), int(SCREEN_HEIGHT/2) + 16)
+            oled.show()
+            
+            # wait for a button
+            while right.value()!=0 and left.value()!=0 and button1.value()!=0 and button2.value()!=0:
+                time.sleep(0.001)
+            
+            # exit the loop
+            break
                 
 def update_game(timer):
     global food
@@ -170,18 +177,12 @@ def update_game(timer):
     # Move the snake
     player.move()
     
-    if player.state == False:
-        # I think he's dead now :/
-        oled.fill(0)
-        oled.text("Game Over!" , int(SCREEN_WIDTH/2) - int(len("Game Over!")/2 * 8), int(SCREEN_HEIGHT/2) - 8)
-        oled.text("Snake length:" + str(len(player.segments)) , int(SCREEN_WIDTH/2) - int(len("Snake length:" + str(len(player.segments))) /2 * 8), int(SCREEN_HEIGHT/2) + 16)
-        
-    else:
+    if player.state == True:
         # Our snake is still alive and moving
         if food[0] == player.x and food[1] == player.y:
             # Our snake reached the food
             player.eat()
-            food = urandom.choice([coord for coord in VALID_RANGE if coord not in player.segments])
+            food = random.choice([coord for coord in VALID_RANGE if coord not in player.segments])
             oled.fill_rect(food[0] * SEGMENT_PIXELS , food[1] * SEGMENT_PIXELS, SEGMENT_PIXELS, SEGMENT_PIXELS, 1)
         
         player.draw()
@@ -190,4 +191,4 @@ def update_game(timer):
     oled.show()
 
 if __name__ == "__main__":
-    main()
+    pico_snake_main()
