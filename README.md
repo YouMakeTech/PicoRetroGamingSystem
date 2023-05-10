@@ -17,6 +17,5 @@ How to use
 ==========
 * Install MicroPython on the Raspberry Pi Pico
 * Copy the files to the root directory of the Raspberry Pi Pico
-* Rename one of the game to main.py
 * Restart the Pico
 * Enjoy!
