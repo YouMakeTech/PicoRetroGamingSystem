@@ -10,7 +10,7 @@ if __name__ == "__main__":
     SCREEN_HEIGHT=64
     
     # list of games
-    GAMELIST=["Pong","Snake","Space Invaders"]
+    GAMELIST=["Pong","Snake","Space Invaders", "Dino"]
 
     # Buttons connected to GP2 to GP7
     up = Pin(2, Pin.IN, Pin.PULL_UP)
@@ -78,5 +78,8 @@ if __name__ == "__main__":
             elif game_selected==2:
                 from PicoInvaders import *
                 pico_invaders_main()
+            elif game_selected==3:
+                from PicoDino import *
+                pico_dino_main()
                 
         game_selected=-1
