@@ -40,16 +40,43 @@ class PicoGame(SSD1306_I2C):
         self.__fb.append(fb)
         self.__w.append(w)
         self.__h.append(h)
+        return len(self.__fb) - 1
        
     def sprite(self, n, x, y):
-        self.blit(self.__fb[n], x, y)
+        self.blit(self.__fb[n], x, y, 0)
         
     def sprite_width(self,n):
         return self.__w[n]
     
     def sprite_height(self,n):
         return self.__h[n]
-        
+    
+    def sprites_intersection(self, x1, y1, w1, h1, x2, y2, w2, h2):
+    # return true if the 2 sprites rectangles
+    # (x1,y1,w1,h1) and (x2,y2,w2,h2) overlaps
+        overlap = True
+        if x2 > x1 + w1 - 1:
+            overlap = False
+        if x2 + w2 - 1 < x1:
+            overlap = False
+        if y2 > y1 + h1 -1:
+            overlap = False
+        if y2 + h2 -1 < y1:
+            overlap = False
+        return overlap
+    
+    def sprites_collision(self, n, x1, y1, m, x2, y2):
+        if self.sprites_intersection(x1, y1, self.sprite_width(n), self.sprite_height(n), x2, y2, self.sprite_width(m), self.sprite_height(m)):
+            dx = max(x1, x2)
+            dy = max(y1, y2)
+            dw = min(x1 + self.sprite_width(n), x2 + self.sprite_width(m)) - dx
+            dh = min(y1 + self.sprite_height(n), y2 + self.sprite_height(m)) - dy
+            for j in range(dy, dy + dh):
+                for i in range(dx, dx + dw):
+                    if self.__fb[n].pixel(i - x1, j - y1) and self.__fb[m].pixel(i - x2, j - y2):
+                        return True          
+        return False
+            
     def button_up(self):
         return self.__up.value()==0
     
