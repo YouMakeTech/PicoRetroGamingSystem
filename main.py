@@ -5,6 +5,10 @@ import time
 import random
 
 if __name__ == "__main__":
+    # To avoid strange errors at startup
+    # I don't know why but it works!
+    time.sleep(0.2)
+    
     # size of the screen
     SCREEN_WIDTH=128                       
     SCREEN_HEIGHT=64
@@ -86,3 +90,5 @@ if __name__ == "__main__":
                 pico_2048_main()
                 
         game_selected=-1
+
+
