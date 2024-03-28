@@ -14,7 +14,7 @@ if __name__ == "__main__":
     SCREEN_HEIGHT=64
     
     # list of games
-    GAMELIST=["Pong","Snake","Space Invaders", "Dino", "2048"]
+    GAMELIST=["Pong","Snake","Space Invaders", "Dino", "2048", "Tetris"]
 
     # Buttons connected to GP2 to GP7
     up = Pin(2, Pin.IN, Pin.PULL_UP)
@@ -88,6 +88,9 @@ if __name__ == "__main__":
             elif game_selected==4:
                 from Pico2048 import *
                 pico_2048_main()
+            elif game_selected==5:
+                from PicoTetris import *
+                pico_tetris_main()
                 
         game_selected=-1
 
