@@ -24,6 +24,8 @@ class PicoGame(SSD1306_I2C):
         self.__fb=[] # Array of FrameBuffer objects for sprites
         self.__w=[]
         self.__h=[]
+        
+        self.__mute = False
     
     def center_text(self, s, color = 1):
         x = int(self.width/2)- int(len(s)/2 * 8)
@@ -42,8 +44,8 @@ class PicoGame(SSD1306_I2C):
         self.__h.append(h)
         return len(self.__fb) - 1
        
-    def sprite(self, n, x, y):
-        self.blit(self.__fb[n], x, y, 0)
+    def sprite(self, n, x, y, key = 0):
+        self.blit(self.__fb[n], x, y, key)
         
     def sprite_width(self,n):
         return self.__w[n]
@@ -113,10 +115,11 @@ class PicoGame(SSD1306_I2C):
         return button_pressed
     
     def sound(self, freq, duty_u16 = 2000):
-        # Make a sound at the selected frequency in Hz
-        if freq>0:
-            self.__buzzer.freq(freq)
-            self.__buzzer.duty_u16(duty_u16)
-        else:
-            self.__buzzer.duty_u16(0)
-   
+        if not self.__mute:
+            # Make a sound at the selected frequency in Hz
+            if freq>0:
+                self.__buzzer.freq(freq)
+                self.__buzzer.duty_u16(duty_u16)
+            else:
+                self.__buzzer.duty_u16(0)
+       
