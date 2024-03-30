@@ -13,7 +13,8 @@ Files
 * PicoDino.py: A Dino game port by tyrkelko
 * Pico2048.py: A 2048 game port by tyrkelko
 * PicoTetris.py: A tetris clone game port by tyrkelko
-
+* PicoFullSpeed.py: A moto game by Kuba & Stepan (Original source code from https://github.com/Hellmole/Raspberry-pi-pico-games)
+* PicoLunarModule.py: A lunar module game by Kuba & Stepan (Original source code from https://github.com/Hellmole/Raspberry-pi-pico-games)
 * PicoGame.py: A class to easily write games for the Raspberry Pi Pico RetroGaming System (used by some games)
 * ss1306py.py: Official MicroPython SSD1306 OLED driver, I2C and SPI interfaces
 
