@@ -1,4 +1,5 @@
 # Original source code from https://github.com/Twan37/PicoSnake
+#balls
 
 from machine import Pin, PWM, I2C, Timer
 from ssd1306 import SSD1306_I2C
